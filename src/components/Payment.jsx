@@ -7,7 +7,7 @@ import alipayIcon from "../assets/alipay.png";
 import paymeIcon from "../assets/payme.png";
 import "../css/payment.css";
 
-  const Payment = () => {
+const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -79,6 +79,9 @@ import "../css/payment.css";
       ...prev,
       [field]: error ? { type: "error", text: error } : { type: "valid", text: valid },
     }));
+
+    // 回傳是否驗證成功
+    return !error;
   };
 
   const handleCardChange = (index, val) => {
@@ -112,46 +115,43 @@ import "../css/payment.css";
   };
 
   const handleConfirm = () => {
+    // 立即驗證，不等待
     const fullCard = cardParts.join(" - ");
+    const validCard = validateField("cardNumber", fullCard);
+    const validExpiry = validateField("expiry", expiry);
+    const validCvv = validateField("cvv", cvv);
+    const validHolder = validateField("cardholder", cardholder);
 
-    validateField("cardNumber", fullCard);
-    validateField("expiry", expiry);
-    validateField("cvv", cvv);
-    validateField("cardholder", cardholder);
+    const allValid = validCard && validExpiry && validCvv && validHolder;
 
-    // 等待 state 更新後再檢查
+    if (!allValid) {
+      setNotification("Please fix the errors in the form.");
+      return;
+    }
+
+    // 驗證成功 → 直接跳轉，不等待
+    setNotification("Payment validating ...");
+
     setTimeout(() => {
-      const allValid =
-        messages.cardNumber?.type === "valid" &&
-        messages.expiry?.type === "valid" &&
-        messages.cvv?.type === "valid" &&
-        messages.cardholder?.type === "valid";
+      alert("Payment successfully!");
 
-      if (allValid) {
-        setNotification("Payment validating ...");
-        alert("Payment successfully!");
+      const purchasedItems = (cartItems || []).map((c) => ({
+        courseName: c.courseName || c.course?.name || "Unknown Course",
+        quantity: c.quantity || 0,
+        price: c.unitPrice || c.course?.price || 0,
+        subTotal: c.subTotal || (c.course?.price || c.unitPrice || 0) * (c.quantity || 0),
+      }));
 
-        const purchasedItems = (cartItems || []).map((c) => ({
-          courseName: c.courseName || c.course?.name || "Unknown Course",
-          quantity: c.quantity || 0,
-          price: c.unitPrice || c.course?.price || 0,
-          subTotal: c.subTotal || (c.course?.price || c.unitPrice || 0) * (c.quantity || 0),
-        }));
-        console.log("Confirming payment with:", selectedMethod);
-
-
-        navigate("/order-confirmation", {
-          state: {
-            orderId,
-            total,
-            paymentMethod: method.id,
-            items: purchasedItems,
-          },
-        });
-      } else {
-        setNotification("Please fix the errors in the form.");
-      }
-    }, 3000);
+      // ✅ 修復：這裡用 selectedMethod
+      navigate("/order-confirmation", {
+        state: {
+          orderId,
+          total,
+          paymentMethod: selectedMethod, // 修復
+          items: purchasedItems,
+        },
+      });
+    }, 1000);
   };
 
   return (
@@ -165,7 +165,6 @@ import "../css/payment.css";
             key={method.id}
             className={`payment-method-card ${selectedMethod === method.id ? "selected" : ""}`}
             onClick={() => {
-              console.log("Selected method:", method.id);
               setSelectedMethod(method.id);
 
               if (method.id === "ALIPAY" || method.id === "PAYME") {
@@ -184,16 +183,15 @@ import "../css/payment.css";
                       (c.course?.price || c.unitPrice || 0) * (c.quantity || 0),
                   }));
 
-                 navigate("/order-confirmation", {
+                  navigate("/order-confirmation", {
                     state: {
                       orderId,
                       total,
                       paymentMethod: method.id,
                       items: purchasedItems
-                    
                     },
                   });
-                }, 3000);
+                }, 2000);
               }
             }}
           >
@@ -204,7 +202,7 @@ import "../css/payment.css";
         ))}
       </div>
 
-      {/* Credit Card Form - Visa & Mastercard */}
+      {/* Credit Card Form */}
       {(selectedMethod === "VISA" || selectedMethod === "MASTERCARD") && (
         <div className="card-details">
           <div className="input-group">
@@ -296,7 +294,7 @@ import "../css/payment.css";
         </div>
       )}
 
-      {/* QR Code for Alipay / PayMe */}
+      {/* QR Code */}
       {(selectedMethod === "ALIPAY" || selectedMethod === "PAYME") && paymentURL && (
         <div className="qr-section">
           <h3>Scan to Pay</h3>
