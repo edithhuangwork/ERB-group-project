@@ -95,7 +95,7 @@ const SignUp = () => {
     if (Object.keys(validationErrors).length === 0) {
       setLoading(true);
       try {
-        const res = await axios.post("https://channing-dichasial-marissa.ngrok-free.dev/register", {
+        const res = await axios.post("https://erb-group.onrender.com/register", {
           firstname,
           lastname,
           email,

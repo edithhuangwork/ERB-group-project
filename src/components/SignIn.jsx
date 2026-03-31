@@ -54,7 +54,7 @@ const SignIn = () => {
       identifier: method === "email" ? email : mobile, password 
     };
 
-    const res = await axios.post("https://channing-dichasial-marissa.ngrok-free.dev/login", payload);
+    const res = await axios.post("https://erb-group.onrender.com/login", payload);
     signIn(res.data.token, res.data.firstname);
 
     // 儲存 JWT

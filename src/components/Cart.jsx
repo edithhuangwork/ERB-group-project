@@ -25,7 +25,7 @@ const Cart = ({ setCartCount }) => {
       alert("Please Login");
       return;
     }
-    axios.get("https://channing-dichasial-marissa.ngrok-free.dev/cart", {
+    axios.get("https://erb-group.onrender.com/cart", {
       headers: getHeaders()
     })
     .then(res => {
@@ -45,7 +45,7 @@ const Cart = ({ setCartCount }) => {
       alert("Please Login");
       return;
     }
-    axios.post("https://channing-dichasial-marissa.ngrok-free.dev/cart/add", 
+    axios.post("https://erb-group.onrender.com/cart/add", 
       { courseId, quantity },
       { headers: { Authorization: `Bearer ${token}` } }
     )
@@ -62,7 +62,7 @@ const Cart = ({ setCartCount }) => {
 
   const handleIncrease = (id) => {
     const item = cartItems.find(i => i.id === id);
-    axios.put(`https://channing-dichasial-marissa.ngrok-free.dev/cart/update/${id}?quantity=${item.quantity + 1}`, {}, {
+    axios.put(`https://erb-group.onrender.com/cart/update/${id}?quantity=${item.quantity + 1}`, {}, {
       headers: getHeaders()
     })
     .then(() => refreshCart())
@@ -72,7 +72,7 @@ const Cart = ({ setCartCount }) => {
   const handleDecrease = (id) => {
     const item = cartItems.find(i => i.id === id);
     if (item.quantity > 1) {
-      axios.put(`https://channing-dichasial-marissa.ngrok-free.dev/cart/update/${id}?quantity=${item.quantity - 1}`, {}, {
+      axios.put(`https://erb-group.onrender.com/cart/update/${id}?quantity=${item.quantity - 1}`, {}, {
         headers: getHeaders()
       })
       .then(() => refreshCart())
@@ -85,7 +85,7 @@ const Cart = ({ setCartCount }) => {
   };
 
   const handleDelete = (id) => {
-    axios.delete(`https://channing-dichasial-marissa.ngrok-free.dev/cart/${id}`, {
+    axios.delete(`https://erb-group.onrender.com/cart/${id}`, {
       headers: getHeaders()
     })
     .then(() => {
@@ -96,7 +96,7 @@ const Cart = ({ setCartCount }) => {
   };
 
   const handleClearAll = () => {
-    axios.delete("https://channing-dichasial-marissa.ngrok-free.dev/cart/clear", {
+    axios.delete("https://erb-group.onrender.com/cart/clear", {
       headers: getHeaders()
     })
     .then(() => {

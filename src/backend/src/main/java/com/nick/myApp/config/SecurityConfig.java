@@ -17,6 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import static org.springframework.security.config.Customizer.withDefaults;
+import com.nick.myApp.config.JwtAuthenticationFilter; // 🔥 這行必須加！
+import org.springframework.context.annotation.Lazy;
+
 import com.nick.myApp.models.Users;
 import com.nick.myApp.repos.UsersRepo;
 
@@ -24,37 +27,32 @@ import com.nick.myApp.repos.UsersRepo;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 🔥 只注入 UsersRepo，不注入 JwtFilter → 解除循环依赖！
     private final UsersRepo usersRepo;
+    private final JwtAuthenticationFilter jwtFilter;
 
-    public SecurityConfig(UsersRepo usersRepo) {
+    // 🔥 加上 @Lazy 才能打破循環依賴
+    public SecurityConfig(UsersRepo usersRepo, @Lazy JwtAuthenticationFilter jwtFilter) {
         this.usersRepo = usersRepo;
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/logout").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/forget_password").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/reset_password").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/courses/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/register", "/login", "/logout", "/forget_password",
+                                "/reset_password")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/courses/**", "/categories/**").permitAll()
                         .requestMatchers("/error").permitAll()
-
-                        // 🔥 需要登录
                         .requestMatchers("/wishlist/**").authenticated()
                         .requestMatchers("/cart/**").authenticated()
                         .requestMatchers("/orders/**").authenticated()
-
                         .anyRequest().authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ✅ 修正這行
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -70,7 +68,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // 登录用
     @Bean
     public UserDetailsService userDetailsService() {
         return identifier -> {

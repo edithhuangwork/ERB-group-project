@@ -28,7 +28,7 @@ const CourseDetail = ({setCartCount,setHeartCount}) => {
         return;
         }
 
-        axios.post("https://channing-dichasial-marissa.ngrok-free.dev/cart/add",
+        axios.post("https://erb-group.onrender.com/cart/add",
         { courseId: currentCourse.id, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
         )
@@ -54,7 +54,7 @@ const CourseDetail = ({setCartCount,setHeartCount}) => {
         return;
         }
 
-        axios.post("https://channing-dichasial-marissa.ngrok-free.dev/wishlist/add",
+        axios.post("https://erb-group.onrender.com/wishlist/add",
         { courseId: currentCourse.id },
         { headers: { Authorization: `Bearer ${token}` } }
         )

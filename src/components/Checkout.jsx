@@ -36,7 +36,7 @@ const Checkout = () => {
       return Object.values(grouped);
     };
 
-    axios.get("https://channing-dichasial-marissa.ngrok-free.dev/cart", {
+    axios.get("https://erb-group.onrender.com/cart", {
       headers: getHeaders()
     })
     .then(res => {
@@ -53,7 +53,7 @@ const Checkout = () => {
 
   const handleConfirmOrder = () => {
     const token = localStorage.getItem("token");
-    axios.post("https://channing-dichasial-marissa.ngrok-free.dev/cart/checkout", {
+    axios.post("https://erb-group.onrender.com/cart/checkout", {
       paymentMethod: selectedMethod
     }, {
       headers: getHeaders()
